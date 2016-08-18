@@ -63,7 +63,7 @@ class CurlWrapper
      *
      * @throws CurlWrapperCurlException
      */
-    public function __construct()
+    public function __construct($re = false)
     {
         if (!extension_loaded('curl')) {
             throw new CurlWrapperException('cURL extension is not loaded.');
@@ -75,7 +75,8 @@ class CurlWrapper
             throw new CurlWrapperCurlException($this->ch);
         }
 
-        $this->setDefaults();
+        if (!$re)
+            $this->setDefaults();
     }
 
     /**
@@ -83,11 +84,17 @@ class CurlWrapper
      */
     public function __destruct()
     {
-        if (is_resource($this->ch)) {
-            curl_close($this->ch);
-        }
+        $this->destroy();
+    }
 
-        $this->ch = null;
+    public function destroy()
+    {
+        if (is_resource($this->ch))
+        {
+            curl_close($this->ch);
+            unset($this->ch);
+            $this->ch = null;
+        }
     }
 
     /**
@@ -447,7 +454,7 @@ class CurlWrapper
     {
         $this->__destruct();
         $this->transferInfo = array();
-        $this->__construct();
+        $this->__construct(true);
     }
 
     /**
